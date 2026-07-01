@@ -10,9 +10,11 @@
     <script src="https://unpkg.com/@azure/msal-browser@3/dist/msal-browser.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-lite/1.3.0/material.min.css">
     <style>
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; }
-        #root { padding: 20px; }
-        .hidden { display: none; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; background: #f5f5f5; }
+        #root { min-height: 100vh; }
+        .header { background: #0078d4; color: white; padding: 15px; text-align: center; }
+        .container { max-width: 1200px; margin: 20px auto; padding: 20px; }
+        button { padding: 12px 24px; margin: 10px; font-size: 16px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -24,42 +26,73 @@
                 clientId: "8655d232-bda2-450d-82b1-21db106ed460",
                 authority: "https://login.microsoftonline.com/0d5287ec-27fd-45a5-b692-1adffe46d088",
                 redirectUri: "https://hashim-adwso.github.io/finance-tracker"
-            },
-            sharePoint: {
-                siteUrl: "https://adwso.sharepoint.com/sites/tcsop"
             }
         };
 
-        // Simple App Component
+        let msalInstance;
+
         function App() {
             const [isLoggedIn, setIsLoggedIn] = React.useState(false);
             const [user, setUser] = React.useState(null);
+            const [loading, setLoading] = React.useState(false);
+
+            React.useEffect(() => {
+                msalInstance = new msal.PublicClientApplication({
+                    auth: CONFIG.auth,
+                    cache: { cacheLocation: "sessionStorage" }
+                });
+            }, []);
 
             const login = async () => {
-                alert("Login flow will be implemented next. For now, clicking OK simulates successful login.");
-                setIsLoggedIn(true);
-                setUser({ name: "Hashim Ali Shah", email: "hashim@adwso.org", role: "Controller" });
+                setLoading(true);
+                try {
+                    const response = await msalInstance.loginPopup({
+                        scopes: ["User.Read", "Sites.Read.All", "Sites.ReadWrite.All"]
+                    });
+                    
+                    const account = response.account;
+                    setUser({
+                        name: account.name || "User",
+                        email: account.username,
+                        role: "Controller" // You can make this dynamic later
+                    });
+                    setIsLoggedIn(true);
+                } catch (error) {
+                    console.error(error);
+                    alert("Login failed. Please try again.");
+                }
+                setLoading(false);
             };
 
             if (!isLoggedIn) {
-                return React.createElement('div', { style: { textAlign: 'center', marginTop: '100px' } },
+                return React.createElement('div', { className: 'header' },
                     React.createElement('h1', null, 'Finance Tracker - ADWSO'),
-                    React.createElement('p', null, 'Welcome to the Finance Documentation Management System'),
-                    React.createElement('button', {
-                        onClick: login,
-                        style: { padding: '15px 30px', fontSize: '18px', background: '#0078d4', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }
-                    }, 'Sign in with Microsoft')
+                    React.createElement('p', null, 'Finance Documentation Management System'),
+                    React.createElement('div', { className: 'container', style: { textAlign: 'center', marginTop: '50px' } },
+                        React.createElement('button', {
+                            onClick: login,
+                            disabled: loading,
+                            style: { padding: '15px 40px', fontSize: '18px', background: '#0078d4', color: 'white', border: 'none', borderRadius: '6px' }
+                        }, loading ? 'Signing in...' : 'Sign in with Microsoft')
+                    )
                 );
             }
 
             return React.createElement('div', null,
-                React.createElement('h1', null, `Welcome, ${user.name}`),
-                React.createElement('p', null, `Role: ${user.role}`),
-                React.createElement('p', null, '✅ App is now working! We will add Dashboard, Transactions, etc. next.')
+                React.createElement('div', { className: 'header' },
+                    React.createElement('h2', null, `Welcome, ${user.name}`)
+                ),
+                React.createElement('div', { className: 'container' },
+                    React.createElement('p', null, `Role: ${user.role}`),
+                    React.createElement('p', null, '✅ Successfully logged in with Microsoft!'),
+                    React.createElement('button', {
+                        onClick: () => window.location.reload(),
+                        style: { background: '#d13438' }
+                    }, 'Logout')
+                )
             );
         }
 
-        // Render the App
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(React.createElement(App));
     </script>
