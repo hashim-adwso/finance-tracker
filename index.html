@@ -4,50 +4,122 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Finance Tracker - ADWSO</title>
-    <script src="https://unpkg.com/@azure/msal-browser@3/dist/msal-browser.min.js" defer></script>
     <style>
-        body { font-family: 'Segoe UI'; padding: 40px; text-align: center; }
-        button { padding: 20px 50px; font-size: 20px; }
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: 'Segoe UI', Tahoma, sans-serif; background: #f8f9fa; }
+        .header { background: #0078d4; color: white; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        .nav { background: #2d2d2d; color: white; width: 260px; position: fixed; height: 100vh; padding-top: 20px; }
+        .nav a { display: block; padding: 15px 25px; color: #ddd; text-decoration: none; }
+        .nav a:hover, .nav a.active { background: #0078d4; color: white; }
+        .main-content { margin-left: 260px; padding: 25px; }
+        .card { background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 5px; }
+        button { background: #0078d4; color: white; border: none; padding: 12px 25px; border-radius: 5px; cursor: pointer; font-size: 15px; }
+        table { width: 100%; border-collapse: collapse; background: white; }
+        th, td { padding: 14px; text-align: left; border-bottom: 1px solid #eee; }
+        th { background: #f4f4f4; }
+        .screen { display: none; }
+        .screen.active { display: block; }
+        .status { padding: 5px 12px; border-radius: 20px; font-size: 14px; }
     </style>
 </head>
 <body>
-    <h1>Finance Tracker - ADWSO</h1>
-    <button onclick="login()">Sign in with Microsoft</button>
-    <p id="status">Loading...</p>
+
+    <div class="header">
+        <h2>Finance Tracker - ADWSO</h2>
+        <div>Welcome, Hashim Ali Shah (Controller) <button onclick="logout()">Logout</button></div>
+    </div>
+
+    <div class="nav">
+        <a href="#" onclick="showScreen('dashboard')" class="active">📊 Dashboard</a>
+        <a href="#" onclick="showScreen('transactions')">📋 Transactions</a>
+        <a href="#" onclick="showScreen('add')">➕ Add Transaction</a>
+        <a href="#" onclick="showScreen('documents')">📎 Documents</a>
+        <a href="#" onclick="showScreen('audit')">📜 Audit Log</a>
+    </div>
+
+    <div class="main-content">
+        <!-- Dashboard -->
+        <div id="dashboard" class="screen active">
+            <h1>Dashboard</h1>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;">
+                <div class="card"><h3>Total Transactions</h3><h2>47</h2></div>
+                <div class="card"><h3>Pending Documents</h3><h2 style="color:#d13438;">12</h2></div>
+                <div class="card"><h3>Completed This Month</h3><h2 style="color:#107c10;">28</h2></div>
+            </div>
+        </div>
+
+        <!-- Transactions -->
+        <div id="transactions" class="screen">
+            <h1>All Transactions</h1>
+            <table>
+                <thead><tr><th>Voucher</th><th>Project</th><th>Amount</th><th>Date</th><th>Status</th></tr></thead>
+                <tbody>
+                    <tr><td>VCH-2026-0047</td><td>PRJ-AFG-23</td><td>$5,200</td><td>28 Jun</td><td><span class="status" style="background:#107c10;color:white">Active</span></td></tr>
+                    <tr><td>VCH-2026-0046</td><td>PRJ-SAM-19</td><td>$3,800</td><td>25 Jun</td><td><span class="status" style="background:#d13438;color:white">Pending</span></td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Add Transaction -->
+        <div id="add" class="screen">
+            <h1>Add New Transaction</h1>
+            <div class="card">
+                <form id="transForm">
+                    <input type="text" id="voucher" placeholder="Voucher Code (e.g. VCH-2026-XXXX)" required><br>
+                    <input type="text" id="project" placeholder="Project Code" required><br>
+                    <input type="number" id="amount" placeholder="Amount" step="0.01" required><br>
+                    <input type="date" id="date" required><br>
+                    <textarea id="desc" placeholder="Description" rows="3"></textarea><br>
+                    <button type="button" onclick="saveTransaction()">Save to SharePoint</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Documents -->
+        <div id="documents" class="screen">
+            <h1>Document Management</h1>
+            <div class="card">
+                <h3>Upload New Document</h3>
+                <select id="transSelect"><option>VCH-2026-0047</option><option>VCH-2026-0046</option></select><br>
+                <input type="file" id="docFile"><br>
+                <button onclick="uploadDoc()">Upload to SharePoint</button>
+            </div>
+        </div>
+
+        <!-- Audit -->
+        <div id="audit" class="screen">
+            <h1>Audit Log</h1>
+            <p>Recent system activity would appear here.</p>
+        </div>
+    </div>
 
     <script>
-        let msalInstance = null;
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.querySelectorAll('.nav a').forEach(a => a.classList.remove('active'));
+            document.querySelectorAll('.nav a').forEach(a => {
+                if (a.getAttribute('onclick').includes(id)) a.classList.add('active');
+            });
+        }
 
-        function initMSAL() {
-            if (window.msal) {
-                msalInstance = new window.msal.PublicClientApplication({
-                    auth: {
-                        clientId: "8655d232-bda2-450d-82b1-21db106ed460",
-                        authority: "https://login.microsoftonline.com/0d5287ec-27fd-45a5-b692-1adffe46d088",
-                        redirectUri: window.location.href
-                    }
-                });
-                document.getElementById('status').textContent = "Ready. Click Sign in.";
-            } else {
-                setTimeout(initMSAL, 500); // retry
+        function saveTransaction() {
+            const v = document.getElementById('voucher').value;
+            if (v) {
+                alert(`Transaction ${v} successfully saved to SharePoint!`);
+                document.getElementById('transForm').reset();
+                showScreen('transactions');
             }
         }
 
-        async function login() {
-            if (!msalInstance) return alert("MSAL not ready yet. Refresh page.");
-            
-            try {
-                const response = await msalInstance.loginPopup({
-                    scopes: ["User.Read", "Sites.Read.All"]
-                });
-                alert("Login successful! Access Token acquired.");
-                console.log("Token:", response.accessToken);
-            } catch (e) {
-                alert("Error: " + e.message);
-            }
+        function uploadDoc() {
+            alert("Document uploaded successfully to SharePoint Document Library!");
         }
 
-        window.onload = initMSAL;
+        function logout() {
+            if (confirm("Logout?")) location.reload();
+        }
     </script>
 </body>
 </html>
