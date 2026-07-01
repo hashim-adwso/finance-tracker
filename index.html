@@ -4,138 +4,77 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Finance Tracker - ADWSO</title>
+    <script src="https://unpkg.com/@azure/msal-browser@3/dist/msal-browser.min.js"></script>
     <style>
-        * { box-sizing: border-box; }
-        body { margin: 0; font-family: 'Segoe UI', Tahoma, sans-serif; background: #f8f9fa; }
-        .header { background: #0078d4; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
-        .nav { background: #2d2d2d; color: white; width: 240px; position: fixed; height: 100vh; padding: 20px 0; }
-        .nav a { display: block; padding: 14px 20px; color: white; text-decoration: none; }
-        .nav a:hover, .nav a.active { background: #0078d4; }
-        .main-content { margin-left: 240px; padding: 20px; }
-        .card, .form-container { background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-        input, select, textarea { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 4px; }
-        button { background: #0078d4; color: white; border: none; padding: 12px 24px; border-radius: 4px; cursor: pointer; }
-        .status { padding: 4px 12px; border-radius: 12px; font-size: 14px; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 12px; border-bottom: 1px solid #ddd; }
-        th { background: #f4f4f4; }
-        .screen { display: none; }
-        .screen.active { display: block; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; background: #f8f9fa; }
+        .header, .nav, .main-content { /* same styles as before */ }
+        /* ... keep previous styles ... */
     </style>
 </head>
 <body>
-
-    <div class="header">
-        <h2>Finance Tracker - ADWSO</h2>
-        <div>Welcome, Hashim Ali Shah (Controller) <button onclick="logout()" style="margin-left:15px;">Logout</button></div>
-    </div>
-
-    <div class="nav">
-        <a href="#" onclick="showScreen('dashboard')" class="active">Dashboard</a>
-        <a href="#" onclick="showScreen('transactions')">Transactions</a>
-        <a href="#" onclick="showScreen('add')">Add New Transaction</a>
-        <a href="#" onclick="showScreen('documents')">Documents</a>
-        <a href="#" onclick="showScreen('audit')">Audit Log</a>
-    </div>
-
-    <div class="main-content">
-
-        <!-- Dashboard, Transactions, Add form (same as before) -->
-        <div id="dashboard" class="screen active"> ... (same dashboard) ... </div>
-        <div id="transactions" class="screen"> ... (same table) ... </div>
-        <div id="add" class="screen"> ... (same form) ... </div>
-
-        <!-- New: Documents Section -->
-        <div id="documents" class="screen">
-            <h1>Document Management</h1>
-            
-            <div class="card">
-                <h3>Upload Document for Transaction</h3>
-                <select id="selectedTransaction" style="margin-bottom:15px;">
-                    <option value="">Select Transaction</option>
-                    <option value="VCH-2026-0047">VCH-2026-0047 - PRJ-AFG-23</option>
-                    <option value="VCH-2026-0046">VCH-2026-0046 - PRJ-SAM-19</option>
-                </select>
-
-                <label>Document Type</label>
-                <select id="docType">
-                    <option>Procurement Request</option>
-                    <option>Bill/Invoice</option>
-                    <option>Attendance Sheet</option>
-                    <option>Beneficiary List</option>
-                    <option>DSA Slips</option>
-                </select>
-
-                <label>Upload File</label>
-                <input type="file" id="fileUpload">
-
-                <button onclick="uploadDocument()">Upload Document</button>
-            </div>
-
-            <h3>Document Status</h3>
-            <table>
-                <thead>
-                    <tr><th>Transaction</th><th>Document Type</th><th>Status</th><th>Last Updated</th></tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>VCH-2026-0047</td>
-                        <td>Bill/Invoice</td>
-                        <td><span class="status" style="background:#107c10;color:white;">Completed & Uploaded</span></td>
-                        <td>2026-06-30</td>
-                    </tr>
-                    <tr>
-                        <td>VCH-2026-0046</td>
-                        <td>Procurement Request</td>
-                        <td><span class="status" style="background:#d13438;color:white;">In Process</span></td>
-                        <td>2026-06-28</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div id="audit" class="screen">
-            <h1>Audit Log</h1>
-            <p>Full audit log coming soon...</p>
-        </div>
-
-    </div>
+    <div id="root"></div>
 
     <script>
-        // Previous functions (showScreen, submitTransaction, logout) remain the same
-        function showScreen(screenId) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(screenId).classList.add('active');
+        const CONFIG = {
+            auth: {
+                clientId: "8655d232-bda2-450d-82b1-21db106ed460",
+                authority: "https://login.microsoftonline.com/0d5287ec-27fd-45a5-b692-1adffe46d088",
+                redirectUri: "https://hashim-adwso.github.io/finance-tracker"
+            },
+            sharePointSite: "https://adwso.sharepoint.com/sites/tcsop"
+        };
 
-            document.querySelectorAll('.nav a').forEach(link => {
-                link.classList.remove('active');
-                if (link.getAttribute('onclick').includes(screenId)) link.classList.add('active');
-            });
+        let msalInstance;
+        let accessToken = null;
+
+        async function initializeMSAL() {
+            msalInstance = new msal.PublicClientApplication({ auth: CONFIG.auth });
         }
 
-        function submitTransaction() {
-            const voucher = document.getElementById('voucherCode').value;
-            if (voucher) {
-                alert(`Transaction ${voucher} saved successfully!`);
-                document.getElementById('transactionForm').reset();
-                showScreen('transactions');
+        async function login() {
+            try {
+                const response = await msalInstance.loginPopup({
+                    scopes: ["User.Read", "Sites.Read.All", "Sites.ReadWrite.All"]
+                });
+                accessToken = response.accessToken;
+                alert("Login successful! Token acquired.");
+                loadTransactions();
+            } catch (error) {
+                console.error(error);
+                alert("Login failed: " + error.message);
             }
         }
 
-        function uploadDocument() {
-            const fileInput = document.getElementById('fileUpload');
-            const transaction = document.getElementById('selectedTransaction').value;
-            if (fileInput.files.length > 0 && transaction) {
-                alert(`Document uploaded successfully for ${transaction}!\n\nFile would be stored in SharePoint in full version.`);
-                fileInput.value = '';
-            } else {
-                alert("Please select a transaction and a file.");
+        async function loadTransactions() {
+            if (!accessToken) return alert("Please login first");
+            
+            try {
+                const response = await fetch(`${CONFIG.sharePointSite}/_api/web/lists/getbytitle('Transactions')/items`, {
+                    headers: {
+                        "Accept": "application/json;odata=verbose",
+                        "Authorization": `Bearer ${accessToken}`
+                    }
+                });
+                
+                const data = await response.json();
+                console.log("Transactions data:", data);
+                alert("Successfully fetched " + (data.d.results ? data.d.results.length : 0) + " transactions from SharePoint!");
+            } catch (err) {
+                console.error(err);
+                alert("Could not fetch data. See console for details (F12).");
             }
         }
 
-        function logout() {
-            if (confirm("Logout?")) location.reload();
-        }
+        // Simple UI for now
+        document.getElementById('root').innerHTML = `
+            <div style="text-align:center; margin-top:100px;">
+                <h1>Finance Tracker - ADWSO</h1>
+                <button onclick="login()" style="padding:15px 40px; font-size:18px;">Sign in with Microsoft & Load Data</button>
+                <p>After login, it will try to read your Transactions list.</p>
+            </div>
+        `;
+
+        initializeMSAL();
     </script>
 </body>
 </html>
