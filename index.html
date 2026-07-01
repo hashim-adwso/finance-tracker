@@ -6,74 +6,18 @@
     <title>Finance Tracker - ADWSO</title>
     <style>
         * { box-sizing: border-box; }
-        body { 
-            margin: 0; 
-            font-family: 'Segoe UI', Tahoma, sans-serif; 
-            background: #f8f9fa; 
-        }
-        .header {
-            background: #0078d4;
-            color: white;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .nav {
-            background: #2d2d2d;
-            color: white;
-            width: 240px;
-            position: fixed;
-            height: 100vh;
-            padding: 20px 0;
-            overflow-y: auto;
-        }
-        .nav a {
-            display: block;
-            padding: 14px 20px;
-            color: white;
-            text-decoration: none;
-        }
-        .nav a:hover, .nav a.active {
-            background: #0078d4;
-        }
-        .main-content {
-            margin-left: 240px;
-            padding: 20px;
-        }
-        .card {
-            background: white;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-        }
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background: #f4f4f4;
-        }
-        .status {
-            padding: 4px 10px;
-            border-radius: 12px;
-            font-size: 14px;
-        }
-        button {
-            background: #0078d4;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
+        body { margin: 0; font-family: 'Segoe UI', Tahoma, sans-serif; background: #f8f9fa; }
+        .header { background: #0078d4; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .nav { background: #2d2d2d; color: white; width: 240px; position: fixed; height: 100vh; padding: 20px 0; }
+        .nav a { display: block; padding: 14px 20px; color: white; text-decoration: none; }
+        .nav a:hover, .nav a.active { background: #0078d4; }
+        .main-content { margin-left: 240px; padding: 20px; }
+        .card, .form-container { background: white; border-radius: 8px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        input, select, textarea { width: 100%; padding: 10px; margin: 8px 0; border: 1px solid #ddd; border-radius: 4px; }
+        button { background: #0078d4; color: white; border: none; padding: 12px 24px; border-radius: 4px; cursor: pointer; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; border-bottom: 1px solid #ddd; }
+        th { background: #f4f4f4; }
         .screen { display: none; }
         .screen.active { display: block; }
     </style>
@@ -82,10 +26,7 @@
 
     <div class="header">
         <h2>Finance Tracker - ADWSO</h2>
-        <div>
-            <span>Welcome, Hashim Ali Shah (Controller)</span>
-            <button onclick="logout()" style="margin-left: 15px;">Logout</button>
-        </div>
+        <div>Welcome, Hashim Ali Shah (Controller) <button onclick="logout()" style="margin-left:15px;">Logout</button></div>
     </div>
 
     <div class="nav">
@@ -103,63 +44,56 @@
             <h1>Dashboard</h1>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
                 <div class="card"><h3>Total Transactions</h3><h2>47</h2></div>
-                <div class="card"><h3>Pending Documents</h3><h2 style="color: #d13438;">12</h2></div>
-                <div class="card"><h3>Completed This Month</h3><h2 style="color: #107c10;">28</h2></div>
+                <div class="card"><h3>Pending Documents</h3><h2 style="color:#d13438;">12</h2></div>
+                <div class="card"><h3>Completed This Month</h3><h2 style="color:#107c10;">28</h2></div>
             </div>
         </div>
 
-        <!-- Transactions Table -->
+        <!-- Transactions -->
         <div id="transactions" class="screen">
             <h1>Transactions</h1>
-            <input type="text" placeholder="Search transactions..." style="width: 300px; padding: 10px; margin-bottom: 15px;">
-            
             <table>
                 <thead>
-                    <tr>
-                        <th>Voucher Code</th>
-                        <th>Project Code</th>
-                        <th>Amount</th>
-                        <th>Date</th>
-                        <th>Status</th>
-                        <th>Actions</th>
-                    </tr>
+                    <tr><th>Voucher Code</th><th>Project Code</th><th>Amount</th><th>Date</th><th>Status</th><th>Actions</th></tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>VCH-2026-0047</td>
-                        <td>PRJ-AFG-23</td>
-                        <td><strong>$5,200</strong></td>
-                        <td>2026-06-28</td>
-                        <td><span class="status" style="background:#107c10; color:white;">Active</span></td>
-                        <td><button onclick="viewDetail()">View</button></td>
-                    </tr>
-                    <tr>
-                        <td>VCH-2026-0046</td>
-                        <td>PRJ-SAM-19</td>
-                        <td><strong>$3,800</strong></td>
-                        <td>2026-06-25</td>
-                        <td><span class="status" style="background:#d13438; color:white;">Pending</span></td>
-                        <td><button onclick="viewDetail()">View</button></td>
-                    </tr>
+                    <tr><td>VCH-2026-0047</td><td>PRJ-AFG-23</td><td>$5,200</td><td>2026-06-28</td><td>Active</td><td><button>View</button></td></tr>
+                    <tr><td>VCH-2026-0046</td><td>PRJ-SAM-19</td><td>$3,800</td><td>2026-06-25</td><td>Pending</td><td><button>View</button></td></tr>
                 </tbody>
             </table>
         </div>
 
-        <!-- Other screens (placeholders) -->
+        <!-- Add New Transaction Form -->
         <div id="add" class="screen">
             <h1>Add New Transaction</h1>
-            <p>Full form coming in next update.</p>
+            <div class="form-container">
+                <form id="transactionForm">
+                    <label>Voucher Code</label>
+                    <input type="text" id="voucherCode" required placeholder="VCH-2026-XXXX">
+
+                    <label>Project Code</label>
+                    <input type="text" id="projectCode" required placeholder="PRJ-XXX">
+
+                    <label>Budget Line Code</label>
+                    <input type="text" id="budgetLineCode" placeholder="Optional">
+
+                    <label>Transaction Amount</label>
+                    <input type="number" id="amount" step="0.01" required>
+
+                    <label>Transaction Date</label>
+                    <input type="date" id="date" required>
+
+                    <label>Description</label>
+                    <textarea id="description" rows="3"></textarea>
+
+                    <button type="button" onclick="submitTransaction()">Save Transaction</button>
+                </form>
+            </div>
         </div>
 
-        <div id="documents" class="screen">
-            <h1>Document Management</h1>
-            <p>Document upload and tracking coming soon.</p>
-        </div>
-
-        <div id="audit" class="screen">
-            <h1>Audit Log</h1>
-            <p>Activity log will appear here.</p>
-        </div>
+        <!-- Documents & Audit (placeholders) -->
+        <div id="documents" class="screen"><h1>Document Management</h1><p>Coming soon...</p></div>
+        <div id="audit" class="screen"><h1>Audit Log</h1><p>Coming soon...</p></div>
 
     </div>
 
@@ -174,8 +108,15 @@
             });
         }
 
-        function viewDetail() {
-            alert("Transaction Detail view will open here in the next version.");
+        function submitTransaction() {
+            const voucher = document.getElementById('voucherCode').value;
+            if (voucher) {
+                alert(`Transaction ${voucher} saved successfully!\n\n(It would be sent to SharePoint in the full version)`);
+                document.getElementById('transactionForm').reset();
+                showScreen('transactions'); // Go back to transactions list
+            } else {
+                alert("Please fill Voucher Code");
+            }
         }
 
         function logout() {
