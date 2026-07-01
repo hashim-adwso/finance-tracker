@@ -5,70 +5,73 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Finance Tracker - ADWSO</title>
     <style>
-        body { 
-            font-family: 'Segoe UI', Tahoma, sans-serif; 
-            margin: 0; 
-            background: #f5f5f5; 
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
         }
-        .header { 
-            background: #0078d4; 
-            color: white; 
-            padding: 20px; 
-            text-align: center; 
+        .header {
+            background: #0078d4;
+            color: white;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
-        .container { 
-            max-width: 1000px; 
-            margin: 30px auto; 
-            padding: 20px; 
-            background: white; 
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+        .container {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            text-align: center;
         }
-        button { 
-            padding: 12px 30px; 
-            font-size: 16px; 
-            margin: 10px; 
-            cursor: pointer; 
+        button {
+            background: #0078d4;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 15px;
+        }
+        button:hover {
+            background: #106ebe;
+        }
+        .success {
+            color: #107c10;
+            font-size: 18px;
         }
     </style>
 </head>
 <body>
-    <div id="root"></div>
+    <div class="header">
+        <h1>Finance Tracker - ADWSO</h1>
+        <p>Finance Documentation Management System</p>
+    </div>
 
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script type="text/javascript">
-        function App() {
-            const [isLoggedIn, setIsLoggedIn] = React.useState(false);
-            const [user, setUser] = React.useState(null);
+    <div class="container" id="main">
+        <h2>Welcome to the Finance System</h2>
+        <p>Click below to sign in</p>
+        <button onclick="login()">Sign in with Microsoft</button>
+    </div>
 
-            const login = () => {
-                setIsLoggedIn(true);
-                setUser({
-                    name: "Hashim Ali Shah",
-                    email: "hashim@adwso.org",
-                    role: "Controller"
-                });
-            };
+    <script>
+        function login() {
+            document.getElementById('main').innerHTML = `
+                <h1>Welcome, Hashim Ali Shah</h1>
+                <p class="success">Role: Controller</p>
+                <p>✅ Successfully connected!</p>
+                <p>We will now build the full Dashboard, Transactions, Document Upload, and Audit Log screens.</p>
+                <button onclick="logout()">Logout</button>
+            `;
+        }
 
-            if (!isLoggedIn) {
-                return React.createElement('div', null,
-                    React.createElement('div', { className: 'header' },
-                        React.createElement('h1', null, 'Finance Tracker - ADWSO')
-                    ),
-                    React.createElement('div', { className: 'container', style: { textAlign: 'center' } },
-                        React.createElement('h2', null, 'Welcome to the Finance Documentation Management System'),
-                        React.createElement('button', { 
-                            onClick: login,
-                            style: { background: '#0078d4', color: 'white', border: 'none', padding: '15px 40px', fontSize: '18px', borderRadius: '6px' }
-                        }, 'Sign in with Microsoft')
-                    )
-                );
-            }
-
-            return React.createElement('div', null,
-                React.createElement('div', { className: 'header' },
-                    React.createElement('h1', null, `Welcome, ${user.name}`)
-                ),
-                React.createElement('div', { className: 'container' },
-                    React.createElement('p', null, `Role: ${user.role}`),
-                    React.createElement('p', null, '✅ App
+        function logout() {
+            location.reload();
+        }
+    </script>
+</body>
+</html>
