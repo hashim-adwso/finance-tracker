@@ -22,14 +22,15 @@
         .nav {
             background: #2d2d2d;
             color: white;
-            width: 220px;
+            width: 240px;
             position: fixed;
             height: 100vh;
             padding: 20px 0;
+            overflow-y: auto;
         }
         .nav a {
             display: block;
-            padding: 12px 20px;
+            padding: 14px 20px;
             color: white;
             text-decoration: none;
         }
@@ -37,7 +38,7 @@
             background: #0078d4;
         }
         .main-content {
-            margin-left: 220px;
+            margin-left: 240px;
             padding: 20px;
         }
         .card {
@@ -46,6 +47,24 @@
             padding: 20px;
             margin-bottom: 20px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background: #f4f4f4;
+        }
+        .status {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 14px;
         }
         button {
             background: #0078d4;
@@ -79,77 +98,89 @@
 
     <div class="main-content">
 
-        <!-- Dashboard Screen -->
+        <!-- Dashboard -->
         <div id="dashboard" class="screen active">
             <h1>Dashboard</h1>
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
-                <div class="card">
-                    <h3>Total Transactions</h3>
-                    <h2>47</h2>
-                </div>
-                <div class="card">
-                    <h3>Pending Documents</h3>
-                    <h2 style="color: #d13438;">12</h2>
-                </div>
-                <div class="card">
-                    <h3>Completed This Month</h3>
-                    <h2 style="color: #107c10;">28</h2>
-                </div>
+                <div class="card"><h3>Total Transactions</h3><h2>47</h2></div>
+                <div class="card"><h3>Pending Documents</h3><h2 style="color: #d13438;">12</h2></div>
+                <div class="card"><h3>Completed This Month</h3><h2 style="color: #107c10;">28</h2></div>
             </div>
-            <p>Recent Activity will appear here...</p>
         </div>
 
-        <!-- Transactions Screen -->
+        <!-- Transactions Table -->
         <div id="transactions" class="screen">
             <h1>Transactions</h1>
-            <p>Transaction list with filters will be here.</p>
-            <button onclick="alert('Add test transaction logic coming soon')">Add Test Transaction</button>
+            <input type="text" placeholder="Search transactions..." style="width: 300px; padding: 10px; margin-bottom: 15px;">
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Voucher Code</th>
+                        <th>Project Code</th>
+                        <th>Amount</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>VCH-2026-0047</td>
+                        <td>PRJ-AFG-23</td>
+                        <td><strong>$5,200</strong></td>
+                        <td>2026-06-28</td>
+                        <td><span class="status" style="background:#107c10; color:white;">Active</span></td>
+                        <td><button onclick="viewDetail()">View</button></td>
+                    </tr>
+                    <tr>
+                        <td>VCH-2026-0046</td>
+                        <td>PRJ-SAM-19</td>
+                        <td><strong>$3,800</strong></td>
+                        <td>2026-06-25</td>
+                        <td><span class="status" style="background:#d13438; color:white;">Pending</span></td>
+                        <td><button onclick="viewDetail()">View</button></td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
 
-        <!-- Add New -->
+        <!-- Other screens (placeholders) -->
         <div id="add" class="screen">
             <h1>Add New Transaction</h1>
-            <p>Form will be implemented in next update.</p>
+            <p>Full form coming in next update.</p>
         </div>
 
-        <!-- Documents -->
         <div id="documents" class="screen">
             <h1>Document Management</h1>
-            <p>Upload and track documents here.</p>
+            <p>Document upload and tracking coming soon.</p>
         </div>
 
-        <!-- Audit Log -->
         <div id="audit" class="screen">
             <h1>Audit Log</h1>
-            <p>Recent changes and activity log.</p>
+            <p>Activity log will appear here.</p>
         </div>
 
     </div>
 
     <script>
         function showScreen(screenId) {
-            document.querySelectorAll('.screen').forEach(screen => {
-                screen.classList.remove('active');
-            });
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(screenId).classList.add('active');
 
-            // Update active nav
             document.querySelectorAll('.nav a').forEach(link => {
                 link.classList.remove('active');
-                if (link.getAttribute('onclick').includes(screenId)) {
-                    link.classList.add('active');
-                }
+                if (link.getAttribute('onclick').includes(screenId)) link.classList.add('active');
             });
+        }
+
+        function viewDetail() {
+            alert("Transaction Detail view will open here in the next version.");
         }
 
         function logout() {
-            if (confirm("Logout?")) {
-                location.reload();
-            }
+            if (confirm("Logout?")) location.reload();
         }
-
-        // Keyboard shortcut hint
-        console.log("%cFinance Tracker loaded successfully! Press F12 to see console.", "color: green; font-size: 14px");
     </script>
 </body>
 </html>
