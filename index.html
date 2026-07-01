@@ -5,73 +5,151 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Finance Tracker - ADWSO</title>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            min-height: 100vh;
+        * { box-sizing: border-box; }
+        body { 
+            margin: 0; 
+            font-family: 'Segoe UI', Tahoma, sans-serif; 
+            background: #f8f9fa; 
         }
         .header {
             background: #0078d4;
             color: white;
-            padding: 25px;
-            text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        .container {
-            max-width: 1100px;
-            margin: 40px auto;
-            padding: 30px;
+        .nav {
+            background: #2d2d2d;
+            color: white;
+            width: 220px;
+            position: fixed;
+            height: 100vh;
+            padding: 20px 0;
+        }
+        .nav a {
+            display: block;
+            padding: 12px 20px;
+            color: white;
+            text-decoration: none;
+        }
+        .nav a:hover, .nav a.active {
+            background: #0078d4;
+        }
+        .main-content {
+            margin-left: 220px;
+            padding: 20px;
+        }
+        .card {
             background: white;
             border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            text-align: center;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         button {
             background: #0078d4;
             color: white;
             border: none;
-            padding: 15px 40px;
-            font-size: 18px;
-            border-radius: 6px;
+            padding: 10px 20px;
+            border-radius: 4px;
             cursor: pointer;
-            margin: 15px;
         }
-        button:hover {
-            background: #106ebe;
-        }
-        .success {
-            color: #107c10;
-            font-size: 18px;
-        }
+        .screen { display: none; }
+        .screen.active { display: block; }
     </style>
 </head>
 <body>
+
     <div class="header">
-        <h1>Finance Tracker - ADWSO</h1>
-        <p>Finance Documentation Management System</p>
+        <h2>Finance Tracker - ADWSO</h2>
+        <div>
+            <span>Welcome, Hashim Ali Shah (Controller)</span>
+            <button onclick="logout()" style="margin-left: 15px;">Logout</button>
+        </div>
     </div>
 
-    <div class="container" id="main">
-        <h2>Welcome to the Finance System</h2>
-        <p>Click below to sign in</p>
-        <button onclick="login()">Sign in with Microsoft</button>
+    <div class="nav">
+        <a href="#" onclick="showScreen('dashboard')" class="active">Dashboard</a>
+        <a href="#" onclick="showScreen('transactions')">Transactions</a>
+        <a href="#" onclick="showScreen('add')">Add New Transaction</a>
+        <a href="#" onclick="showScreen('documents')">Documents</a>
+        <a href="#" onclick="showScreen('audit')">Audit Log</a>
+    </div>
+
+    <div class="main-content">
+
+        <!-- Dashboard Screen -->
+        <div id="dashboard" class="screen active">
+            <h1>Dashboard</h1>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                <div class="card">
+                    <h3>Total Transactions</h3>
+                    <h2>47</h2>
+                </div>
+                <div class="card">
+                    <h3>Pending Documents</h3>
+                    <h2 style="color: #d13438;">12</h2>
+                </div>
+                <div class="card">
+                    <h3>Completed This Month</h3>
+                    <h2 style="color: #107c10;">28</h2>
+                </div>
+            </div>
+            <p>Recent Activity will appear here...</p>
+        </div>
+
+        <!-- Transactions Screen -->
+        <div id="transactions" class="screen">
+            <h1>Transactions</h1>
+            <p>Transaction list with filters will be here.</p>
+            <button onclick="alert('Add test transaction logic coming soon')">Add Test Transaction</button>
+        </div>
+
+        <!-- Add New -->
+        <div id="add" class="screen">
+            <h1>Add New Transaction</h1>
+            <p>Form will be implemented in next update.</p>
+        </div>
+
+        <!-- Documents -->
+        <div id="documents" class="screen">
+            <h1>Document Management</h1>
+            <p>Upload and track documents here.</p>
+        </div>
+
+        <!-- Audit Log -->
+        <div id="audit" class="screen">
+            <h1>Audit Log</h1>
+            <p>Recent changes and activity log.</p>
+        </div>
+
     </div>
 
     <script>
-        function login() {
-            document.getElementById('main').innerHTML = `
-                <h1>Welcome, Hashim Ali Shah</h1>
-                <p class="success">Role: Controller</p>
-                <p>✅ Successfully connected!</p>
-                <p>We will now build the full Dashboard, Transactions, Document Upload, and Audit Log screens.</p>
-                <button onclick="logout()">Logout</button>
-            `;
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+
+            // Update active nav
+            document.querySelectorAll('.nav a').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('onclick').includes(screenId)) {
+                    link.classList.add('active');
+                }
+            });
         }
 
         function logout() {
-            location.reload();
+            if (confirm("Logout?")) {
+                location.reload();
+            }
         }
+
+        // Keyboard shortcut hint
+        console.log("%cFinance Tracker loaded successfully! Press F12 to see console.", "color: green; font-size: 14px");
     </script>
 </body>
 </html>
