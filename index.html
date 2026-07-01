@@ -4,47 +4,50 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Finance Tracker - ADWSO</title>
-    <script src="https://unpkg.com/@azure/msal-browser@3/dist/msal-browser.min.js"></script>
+    <script src="https://unpkg.com/@azure/msal-browser@3/dist/msal-browser.min.js" defer></script>
     <style>
-        body { font-family: 'Segoe UI'; text-align: center; padding: 50px; background: #f0f0f0; }
-        button { padding: 15px 40px; font-size: 18px; margin: 20px; }
+        body { font-family: 'Segoe UI'; padding: 40px; text-align: center; }
+        button { padding: 20px 50px; font-size: 20px; }
     </style>
 </head>
 <body>
     <h1>Finance Tracker - ADWSO</h1>
     <button onclick="login()">Sign in with Microsoft</button>
-    <p id="status"></p>
+    <p id="status">Loading...</p>
 
     <script>
-        let msalInstance;
+        let msalInstance = null;
 
-        async function init() {
-            msalInstance = new msal.PublicClientApplication({
-                auth: {
-                    clientId: "8655d232-bda2-450d-82b1-21db106ed460",
-                    authority: "https://login.microsoftonline.com/0d5287ec-27fd-45a5-b692-1adffe46d088",
-                    redirectUri: "https://hashim-adwso.github.io/finance-tracker"
-                }
-            });
-            document.getElementById('status').innerHTML = "Ready. Click Sign in.";
-        }
-
-        async function login() {
-            try {
-                const response = await msalInstance.loginPopup({
-                    scopes: ["User.Read", "Sites.Read.All", "Sites.ReadWrite.All"]
+        function initMSAL() {
+            if (window.msal) {
+                msalInstance = new window.msal.PublicClientApplication({
+                    auth: {
+                        clientId: "8655d232-bda2-450d-82b1-21db106ed460",
+                        authority: "https://login.microsoftonline.com/0d5287ec-27fd-45a5-b692-1adffe46d088",
+                        redirectUri: window.location.href
+                    }
                 });
-                console.log("Token acquired", response.accessToken);
-                document.getElementById('status').innerHTML = "Login successful! Token ready.";
-                alert("Login successful!");
-            } catch (error) {
-                console.error(error);
-                document.getElementById('status').innerHTML = "Login failed: " + error.message;
+                document.getElementById('status').textContent = "Ready. Click Sign in.";
+            } else {
+                setTimeout(initMSAL, 500); // retry
             }
         }
 
-        // Initialize when page loads
-        window.onload = init;
+        async function login() {
+            if (!msalInstance) return alert("MSAL not ready yet. Refresh page.");
+            
+            try {
+                const response = await msalInstance.loginPopup({
+                    scopes: ["User.Read", "Sites.Read.All"]
+                });
+                alert("Login successful! Access Token acquired.");
+                console.log("Token:", response.accessToken);
+            } catch (e) {
+                alert("Error: " + e.message);
+            }
+        }
+
+        window.onload = initMSAL;
     </script>
 </body>
 </html>
