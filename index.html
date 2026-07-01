@@ -6,29 +6,27 @@
     <title>Finance Tracker - ADWSO</title>
     <script src="https://unpkg.com/@azure/msal-browser@3/dist/msal-browser.min.js"></script>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; background: #f8f9fa; }
-        .header, .nav, .main-content { /* same styles as before */ }
-        /* ... keep previous styles ... */
+        body { font-family: 'Segoe UI'; text-align: center; padding: 50px; background: #f0f0f0; }
+        button { padding: 15px 40px; font-size: 18px; margin: 20px; }
     </style>
 </head>
 <body>
-    <div id="root"></div>
+    <h1>Finance Tracker - ADWSO</h1>
+    <button onclick="login()">Sign in with Microsoft</button>
+    <p id="status"></p>
 
     <script>
-        const CONFIG = {
-            auth: {
-                clientId: "8655d232-bda2-450d-82b1-21db106ed460",
-                authority: "https://login.microsoftonline.com/0d5287ec-27fd-45a5-b692-1adffe46d088",
-                redirectUri: "https://hashim-adwso.github.io/finance-tracker"
-            },
-            sharePointSite: "https://adwso.sharepoint.com/sites/tcsop"
-        };
-
         let msalInstance;
-        let accessToken = null;
 
-        async function initializeMSAL() {
-            msalInstance = new msal.PublicClientApplication({ auth: CONFIG.auth });
+        async function init() {
+            msalInstance = new msal.PublicClientApplication({
+                auth: {
+                    clientId: "8655d232-bda2-450d-82b1-21db106ed460",
+                    authority: "https://login.microsoftonline.com/0d5287ec-27fd-45a5-b692-1adffe46d088",
+                    redirectUri: "https://hashim-adwso.github.io/finance-tracker"
+                }
+            });
+            document.getElementById('status').innerHTML = "Ready. Click Sign in.";
         }
 
         async function login() {
@@ -36,45 +34,17 @@
                 const response = await msalInstance.loginPopup({
                     scopes: ["User.Read", "Sites.Read.All", "Sites.ReadWrite.All"]
                 });
-                accessToken = response.accessToken;
-                alert("Login successful! Token acquired.");
-                loadTransactions();
+                console.log("Token acquired", response.accessToken);
+                document.getElementById('status').innerHTML = "Login successful! Token ready.";
+                alert("Login successful!");
             } catch (error) {
                 console.error(error);
-                alert("Login failed: " + error.message);
+                document.getElementById('status').innerHTML = "Login failed: " + error.message;
             }
         }
 
-        async function loadTransactions() {
-            if (!accessToken) return alert("Please login first");
-            
-            try {
-                const response = await fetch(`${CONFIG.sharePointSite}/_api/web/lists/getbytitle('Transactions')/items`, {
-                    headers: {
-                        "Accept": "application/json;odata=verbose",
-                        "Authorization": `Bearer ${accessToken}`
-                    }
-                });
-                
-                const data = await response.json();
-                console.log("Transactions data:", data);
-                alert("Successfully fetched " + (data.d.results ? data.d.results.length : 0) + " transactions from SharePoint!");
-            } catch (err) {
-                console.error(err);
-                alert("Could not fetch data. See console for details (F12).");
-            }
-        }
-
-        // Simple UI for now
-        document.getElementById('root').innerHTML = `
-            <div style="text-align:center; margin-top:100px;">
-                <h1>Finance Tracker - ADWSO</h1>
-                <button onclick="login()" style="padding:15px 40px; font-size:18px;">Sign in with Microsoft & Load Data</button>
-                <p>After login, it will try to read your Transactions list.</p>
-            </div>
-        `;
-
-        initializeMSAL();
+        // Initialize when page loads
+        window.onload = init;
     </script>
 </body>
 </html>
